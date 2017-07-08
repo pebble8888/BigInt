@@ -91,8 +91,8 @@ extension BigUInt {
     ///   `BigUInt.directMultiplicationLimit` digits.
     /// - Complexity: O(n^log2(3))
     public static func *(x: BigUInt, y: BigUInt) -> BigUInt {
-        let xc = x.count
-        let yc = y.count
+        let xc:Int = x.count
+        let yc:Int = y.count
         if xc == 0 { return BigUInt() }
         if yc == 0 { return BigUInt() }
         if yc == 1 { return x.multiplied(byDigit: y[0]) }
@@ -129,15 +129,15 @@ extension BigUInt {
         let (a, b) = x.split
         let (c, d) = y.split
 
-        let high = a * c
-        let low = b * d
-        let xp = a >= b
-        let yp = c >= d
-        let xm = (xp ? a - b : b - a)
-        let ym = (yp ? c - d : d - c)
-        let m = xm * ym
+        let high:BigUInt = a * c // この掛け算は再帰
+        let low:BigUInt = b * d // この掛け算は再帰
+        let xp:Bool = a >= b
+        let yp:Bool = c >= d
+        let xm:BigUInt = (xp ? a - b : b - a)
+        let ym:BigUInt = (yp ? c - d : d - c)
+        let m:BigUInt = xm * ym // この掛け算は再帰
 
-        var r = low
+        var r:BigUInt = low
         r.add(high, atPosition: 2 * shift)
         r.add(low, atPosition: shift)
         r.add(high, atPosition: shift)

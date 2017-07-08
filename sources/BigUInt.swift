@@ -31,15 +31,21 @@ public struct BigUInt {
     /// The type representing a digit in `BigUInt`'s underlying number system.
     public typealias Digit = UIntMax
     
-    internal var _digits: [Digit]
-    internal var _start: Int
-    internal var _end: Int
+    // 可変長配列
+    internal var _digits: [Digit] // 1つのdigitで0から2^64-1までを表す
+    internal var _start: Int    // ?
+    internal var _end: Int      // ?
 
+    // digits: [Digit]
+    // start: Int
+    // end: Int
     internal init(digits: [Digit], start: Int, end: Int) {
         precondition(start >= 0 && start <= end)
         let start = Swift.min(start, digits.count)
         var end = Swift.min(end, digits.count)
-        while end > start && digits[end - 1] == 0 { end -= 1 }
+        while start < end && digits[end - 1] == 0 {
+            end -= 1
+        }
         self._digits = digits
         self._start = start
         self._end = end
@@ -111,12 +117,19 @@ extension BigUInt: IntegerArithmetic {
 extension BigUInt {
     //MARK: Lift and shrink
     
-    /// True iff this integer is not a slice.
-    internal var isTop: Bool { return _start == 0 && _end == _digits.count }
+    /// True if this integer is not a slice.
+    /// ノーマライズされている
+    internal var isTop: Bool {
+        return _start == 0 && _end == _digits.count
+    }
 
     /// Ensures that this integer is not a slice, allocating a new digit array if necessary.
     internal mutating func lift() {
-        guard !isTop else { return }
+        guard !isTop else { 
+            // ノーマライズされている
+            return
+        }
+        // Arrayは何をしているのか?
         _digits = Array(self)
         _start = 0
         _end = _digits.count
@@ -132,17 +145,22 @@ extension BigUInt {
     }
 }
 
-extension BigUInt: RandomAccessCollection {
+extension BigUInt: RandomAccessCollection
+{
     //MARK: Collection
 
     /// Big integers implement `Collection` to provide access to their big digits, indexed by integers; a zero index refers to the least significant digit.
-    public typealias Index = Int
-    /// The type representing the number of steps between two indices.
-    public typealias IndexDistance = Int
-    /// The type representing valid indices for subscripting the collection.
+    //public typealias Index = Int
+    
+    //public typealias IndexDistance = Int
+    
     public typealias Indices = CountableRange<Int>
-    /// The type representing the iteration interface for the digits in a big integer.
+    
+    //
+    // Sequence
+    //
     public typealias Iterator = DigitIterator<Digit>
+    
     /// Big integers can be contiguous digit subranges of another big integer.
     public typealias SubSequence = BigUInt
 
@@ -155,51 +173,12 @@ extension BigUInt: RandomAccessCollection {
     /// The number of digits in this integer, excluding leading zero digits.
     public var count: Int { return _end - _start }
 
-    /// Return a generator over the digits of this integer, starting at the least significant digit.
+    ///
+    /// Sequence protocol
+    ///
     public func makeIterator() -> DigitIterator<Digit> {
         return DigitIterator(digits: _digits, end: _end, index: _start)
     }
-
-    /// Returns the position immediately after the given index.
-    public func index(after i: Int) -> Int {
-        return i + 1
-    }
-
-    /// Returns the position immediately before the given index.
-    public func index(before i: Int) -> Int {
-        return i - 1
-    }
-
-    /// Replaces the given index with its successor.
-    public func formIndex(after i: inout Int) {
-        i += 1
-    }
-
-    /// Replaces the given index with its predecessor.
-    public func formIndex(before i: inout Int) {
-        i -= 1
-    }
-
-    /// Returns an index that is the specified distance from the given index.
-    public func index(_ i: Int, offsetBy n: Int) -> Int {
-        return i + n
-    }
-
-    /// Returns an index that is the specified distance from the given index,
-    /// unless that distance is beyond a given limiting index.
-    public func index(_ i: Int, offsetBy n: Int, limitedBy limit: Int) -> Int? {
-        let r = i + n
-        if n >= 0 {
-            return r <= limit ? r : nil
-        }
-        return r >= limit ? r : nil
-    }
-
-    /// Returns the number of steps between two indices.
-    public func distance(from start: Int, to end: Int) -> Int {
-        return end - start
-    }
-
 
     /// Get or set a digit at a given index.
     ///
@@ -254,12 +233,12 @@ public struct DigitIterator<Digit>: IteratorProtocol {
     /// Returned digits range from least to most significant.
     public mutating func next() -> Digit? {
         guard index < end else { return nil }
-        let v = digits[index]
-        index += 1
-        return v
+        defer { index += 1 }
+        return digits[index]
     }
 }
 
+/*
 extension BigUInt: Strideable {
     /// A type that can represent the distance between two values of `BigUInt`.
     public typealias Stride = BigInt
@@ -274,6 +253,7 @@ extension BigUInt: Strideable {
         return BigInt(other) - BigInt(self)
     }
 }
+ */
 
 extension BigUInt {
     //MARK: Low and High

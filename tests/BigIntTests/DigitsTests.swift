@@ -11,31 +11,13 @@ import XCTest
 
 class DigitsTests: XCTestCase {
 
-//    func testSizeOfDigits() {
-//        print("sizeof(Digit) is \(sizeof(Digit))")
-//        #if TinyDigits
-//            XCTAssertEqual(sizeof(Digit), 1)
-//        #else
-//            XCTAssertEqual(sizeof(Digit), 8)
-//        #endif
-//    }
+
 
     func testUInt64() {
         XCTAssertEqual(UInt64.width, 64)
         XCTAssertEqual(UInt64.digitsFromUIntMax(0x123456789ABCDEF0), [0x123456789ABCDEF0])
     }
-    func testUInt32() {
-        XCTAssertEqual(UInt32.width, 32)
-        XCTAssertEqual(UInt32.digitsFromUIntMax(0x123456789ABCDEF0), [0x9ABCDEF0, 0x12345678])
-    }
-    func testUInt16() {
-        XCTAssertEqual(UInt16.width, 16)
-        XCTAssertEqual(UInt16.digitsFromUIntMax(0x123456789ABCDEF0), [0xDEF0, 0x9ABC, 0x5678, 0x1234])
-    }
-    func testUInt8() {
-        XCTAssertEqual(UInt8.width, 8)
-        XCTAssertEqual(UInt8.digitsFromUIntMax(0x123456789ABCDEF0), [0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12])
-    }
+
 
 
     func testFullMultiply() {
@@ -72,9 +54,11 @@ class DigitsTests: XCTestCase {
             XCTAssertEqual(high, half - 1)
         }
         test(UInt64(0))
+        /*
         test(UInt32(0))
         test(UInt16(0))
         test(UInt8(0))
+ */
     }
 }
 
@@ -109,9 +93,11 @@ struct TestDivision<Digit: BigDigit> {
 extension DigitsTests {
     func testFullDivide() {
         TestDivision<UInt64>.test()
+        /*
         TestDivision<UInt32>.test()
         TestDivision<UInt16>.test()
         TestDivision<UInt8>.test()
+ */
 
         #if false && TinyDigits
             for v in (0..<Digit.max).map({ $0 + 1 }) {

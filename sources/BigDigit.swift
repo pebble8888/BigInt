@@ -6,16 +6,20 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
+// これらはUInt64のためのプロトコルである(将来的にUInt128,UInt256がでても修正不要)
 internal protocol BigDigit: UnsignedInteger, BitwiseOperations, ShiftOperations {
+    // Intから生成できる
     init(_ v: Int)
-
+    // UInt64の値一つからなる要素数1のArrayを生成できる
+    // BigUIntはBigDigitの配列を要素として持つのでこのメソッドがあると便利
     static func digitsFromUIntMax(_ i: UIntMax) -> [Self]
-
+    // ２つの値の掛け算(UInt64 * UInt64)の結果をlowとhighに分けて返せる
     static func fullMultiply(_ x: Self, _ y: Self) -> (high: Self, low: Self)
-
+    // (high, low)をUInt64で割った商UInt64と剰余UInt64を返せる
     static func fullDivide(_ dividend: (high: Self, low: Self), _ divisor: Self) -> (div: Self, mod: Self)
-
+    // 最大値(=2^64-1)
     static var max: Self { get }
+    // UInt64の幅 つまり 64 
     static var width: Int { get }
 
     /// The number of leading zero bits in the binary representation of this digit.
@@ -23,8 +27,10 @@ internal protocol BigDigit: UnsignedInteger, BitwiseOperations, ShiftOperations 
     /// The number of trailing zero bits in the binary representation of this digit.
     var trailingZeroes: Int { get }
 
+    // lowとhighを持つ
     var low: Self { get }
     var high: Self { get }
+    // lowとhighに分けられる 
     var split: (high: Self, low: Self) { get }
 }
 
@@ -38,57 +44,11 @@ extension BigDigit {
 }
 
 extension UInt64: BigDigit {
-    internal static func digitsFromUIntMax(_ i: UIntMax) -> [UInt64] { return [i] }
-}
-
-extension UInt32: BigDigit {
-    internal static func digitsFromUIntMax(_ i: UIntMax) -> [UInt32] { return [UInt32(i.low), UInt32(i.high)] }
-
-    // Somewhat surprisingly, these specializations do not help make UInt32 reach UInt64's performance.
-    // (They are 4-42% faster in benchmarks, but UInt64 is 2-3 times faster still.)
-    internal static func fullMultiply(_ x: UInt32, _ y: UInt32) -> (high: UInt32, low: UInt32) {
-        let p = UInt64(x) * UInt64(y)
-        return (UInt32(p.high), UInt32(p.low))
-    }
-
-    internal static func fullDivide(_ x: (high: UInt32, low: UInt32), _ y: UInt32) -> (div: UInt32, mod: UInt32) {
-        let x = UInt64(x.high) << 32 + UInt64(x.low)
-        let div = x / UInt64(y)
-        let mod = x % UInt64(y)
-        return (UInt32(div), UInt32(mod))
+    internal static func digitsFromUIntMax(_ i: UIntMax) -> [UInt64] {
+        return [i]
     }
 }
-
-extension UInt16: BigDigit {
-    internal static func digitsFromUIntMax(_ i: UIntMax) -> [UInt16] {
-        var digits = Array<UInt16>()
-        var remaining = i
-        var width = UIntMax.width - remaining.leadingZeroes
-        while width >= 16 {
-            digits.append(UInt16(remaining & UIntMax(UInt16.max)))
-            remaining >>= 16
-            width -= 16
-        }
-        digits.append(UInt16(remaining))
-        return digits
-    }
-}
-
-extension UInt8: BigDigit {
-    internal static func digitsFromUIntMax(_ i: UIntMax) -> [UInt8] {
-        var digits = Array<UInt8>()
-        var remaining = i
-        var width = UIntMax.width - remaining.leadingZeroes
-        while width >= 8 {
-            digits.append(UInt8(remaining & UIntMax(UInt8.max)))
-            remaining >>= 8
-            width -= 8
-        }
-        digits.append(UInt8(remaining))
-        return digits
-    }
-}
-
+ 
 //MARK: Full-width multiplication and division
 
 extension BigDigit {

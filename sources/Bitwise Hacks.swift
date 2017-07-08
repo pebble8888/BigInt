@@ -92,6 +92,7 @@ extension UInt32 {
     internal var leadingZeroes: Int { return high == 0 ? 16 + UInt16(low).leadingZeroes : UInt16(high).leadingZeroes }
     internal var trailingZeroes: Int { return low == 0 ? 16 + UInt16(high).trailingZeroes : UInt16(low).trailingZeroes }
 }
+ 
 extension UInt64 {
     internal static var width: Int { return 64 }
 

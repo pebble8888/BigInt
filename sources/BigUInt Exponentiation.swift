@@ -25,9 +25,9 @@ extension BigUInt {
         if exponent == 0 { return 1 }
         if exponent == 1 { return self }
         if self.count <= 1 && self[0] <= 1 { return self }
-        var result = BigUInt(1)
-        var b = self
-        var e = exponent
+        var result:BigUInt = BigUInt(1)
+        var b:BigUInt = self
+        var e:Int = exponent
         while e > 0 {
             if e & 1 == 1 {
                 result = (result * b)

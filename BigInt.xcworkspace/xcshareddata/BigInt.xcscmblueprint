@@ -9,8 +9,8 @@
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4FCBFF65-32E4-4BDC-A85B-DE06364A0673",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "1C1636C82AA6D30C94DEAD00016AA8F48145AB62" : "BigInt\/",
-    "FB48966E443D25259D3CA0BE6E56D2D7343B7F97" : "BigInt\/Carthage\/Checkouts\/SipHash\/"
+    "1C1636C82AA6D30C94DEAD00016AA8F48145AB62" : "BigInt-1\/",
+    "FB48966E443D25259D3CA0BE6E56D2D7343B7F97" : "BigInt-1\/Carthage\/Checkouts\/SipHash\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "BigInt",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
